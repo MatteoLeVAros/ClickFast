@@ -1,0 +1,7 @@
+*
+!index.html
+!style.css
+!script.js
+!Dockerfile
+!.dockerignore
+!default.conf
