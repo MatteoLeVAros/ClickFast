@@ -2,8 +2,30 @@ const express = require("express");
 const cors = require("cors");
 const { Pool } = require("pg");
 
+const requiredEnvironmentVariables = [
+  "PORT",
+  "DB_HOST",
+  "DB_PORT",
+  "DB_USER",
+  "DB_PASSWORD",
+  "DB_NAME",
+];
+
+const missingEnvironmentVariables =
+  requiredEnvironmentVariables.filter(
+    (variableName) => !process.env[variableName]
+  );
+
+if (missingEnvironmentVariables.length > 0) {
+  console.error(
+    `Variables d'environnement obligatoires manquantes : ${missingEnvironmentVariables.join(", ")}`
+  );
+
+  process.exit(1);
+}
+
 const app = express();
-const port = Number(process.env.PORT || 3000);
+const port = Number(process.env.PORT);
 
 app.use(cors());
 app.use(express.json());
