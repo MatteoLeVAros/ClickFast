@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <title>ClickFast</title>
+  </head>
+  <body>
+    <div id="main">
+      <div id="container">
+        <h1>ClickFast</h1>
+        <p class="catchphrase">
+          Sois le plus rapide des clickers du game ⚡
+        </p>
+        <div class="flex-center">
+          <div>
+            <p>Temps restant : <span id="timer">5</span> secondes</p>
+            <div id="score" class="number">0</div>
+            <button id="button-clicker">
+              Clique ici !
+            </button>
+            <section class="scoreboard">
+              <h2>Classement</h2>
+              <p id="api-message"></p>
+              <ol id="ranking"></ol>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>

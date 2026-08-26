@@ -1,0 +1,27 @@
+name: Vérification Docker
+
+on:
+  push:
+    branches:
+      - exercices
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  docker-build:
+    name: Construction des images Docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupération du dépôt
+        uses: actions/checkout@v4
+
+      - name: Création du fichier .env de CI
+        run: cp .env.example .env
+
+      - name: Vérification du fichier Compose
+        run: docker compose config --quiet
+
+      - name: Construction des images
+        run: docker compose build

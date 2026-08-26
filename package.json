@@ -1,0 +1,31 @@
+{
+  "name": "clickfast",
+  "version": "1.0.0",
+  "description": "Sois le plus rapide des clickers du game ⚡",
+  "main": "script.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "jest --env=jsdom"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MatteoLeVAros/ClickFast.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/MatteoLeVAros/ClickFast/issues"
+  },
+  "homepage": "https://github.com/MatteoLeVAros/ClickFast#readme",
+  "dependencies": {
+    "jsdom": "^30.0.1"
+  },
+  "devDependencies": {
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1"
+  }
+}

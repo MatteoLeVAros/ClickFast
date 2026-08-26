@@ -1,0 +1,29 @@
+name: Tests JavaScript
+
+on:
+  push:
+    branches:
+      - exercices
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupération du dépôt
+        uses: actions/checkout@v4
+
+      - name: Installation de Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Installation des dépendances
+        run: npm ci
+
+      - name: Exécution des tests
+        run: npm test
