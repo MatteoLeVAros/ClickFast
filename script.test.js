@@ -33,7 +33,7 @@ describe("Jeu ClickFast", () => {
 
     button.click();
 
-    expect(score.textContent).toBe("999");
+    expect(score.textContent).toBe("1");
   });
 
   test("le score augmente correctement après plusieurs clics", () => {
