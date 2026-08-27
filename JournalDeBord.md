@@ -210,3 +210,20 @@ Une requête sans nom d’utilisateur a été refusée avec le statut HTTP 400 :
   "error": "invalid_username",
   "message": "Le nom doit contenir entre 1 et 50 caractères."
 }
+
+ ### PARTIE 2
+
+ ### Phase 3 : mesure du cache npm
+
+| Mesure | Avant cache | Après cache | Écart |
+|---|---:|---:|---:|
+| Durée totale du workflow | 1 min 2 s | À relever | À calculer |
+| Durée du job de tests | 16 s | 13 s | -3 s |
+| Taille compressée de l’image publiée | 21,97 MB | 21,97 MB | 0 MB |
+
+Détail du run avant cache :
+
+- lint : 17 secondes ;
+- tests Jest : 16 secondes ;
+- build et publication Docker : 20 secondes ;
+- taille compressée de l’image Docker : 21,97 MB.
