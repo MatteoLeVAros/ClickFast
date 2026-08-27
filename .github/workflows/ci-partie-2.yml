@@ -147,3 +147,83 @@ jobs:
           path: clickfast-sbom.cdx.json
           if-no-files-found: error
           retention-days: 30
+
+  security-summary:
+    name: Resume de securite
+    runs-on: ubuntu-latest
+
+    needs:
+      - security-deps
+      - build-and-push
+      - security-image
+      - generate-sbom
+
+    if: always()
+
+    steps:
+      - name: Telecharger le SBOM
+        if: needs.generate-sbom.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: clickfast-sbom-${{ github.sha }}
+          path: sbom
+
+      - name: Generer le resume
+        shell: bash
+        run: |
+          SECURITY_DEPS="${{ needs.security-deps.result }}"
+          BUILD="${{ needs.build-and-push.result }}"
+          TRIVY="${{ needs.security-image.result }}"
+          SBOM="${{ needs.generate-sbom.result }}"
+
+          {
+            echo "# Resume de securite ClickFast"
+            echo
+            echo "Commit analyse : \`${{ github.sha }}\`"
+            echo
+            echo "## Etat des controles"
+            echo
+            echo "| Controle | Resultat |"
+            echo "|---|---|"
+            echo "| Dependances npm et Gitleaks | $SECURITY_DEPS |"
+            echo "| Build et publication Docker | $BUILD |"
+            echo "| Scan Trivy | $TRIVY |"
+            echo "| Generation du SBOM | $SBOM |"
+            echo
+            echo "## Interpretation"
+            echo
+
+            if [ "$SECURITY_DEPS" = "success" ]; then
+              echo "- Aucune vulnerabilite npm bloquante ni aucun secret n'a ete detecte."
+            elif [ "$SECURITY_DEPS" = "skipped" ]; then
+              echo "- Le controle npm et Gitleaks a ete ignore."
+            else
+              echo "- Le controle npm ou Gitleaks a echoue. Consulter le job detaille."
+            fi
+
+            if [ "$TRIVY" = "success" ]; then
+              echo "- Aucune vulnerabilite HIGH ou CRITICAL bloquante n'a ete detectee par Trivy."
+            elif [ "$TRIVY" = "skipped" ]; then
+              echo "- Le scan Trivy a ete ignore car aucune image n'a ete publiee."
+            else
+              echo "- Trivy a detecte un probleme bloquant. Consulter le rapport du job."
+            fi
+
+            if [ "$SBOM" = "success" ]; then
+              if [ -f sbom/clickfast-sbom.cdx.json ]; then
+                COMPONENTS=$(jq '.components | length' sbom/clickfast-sbom.cdx.json)
+                echo "- Le SBOM CycloneDX contient $COMPONENTS composants."
+              else
+                echo "- Le SBOM a ete genere, mais le fichier n'a pas ete retrouve dans l'artefact."
+              fi
+            elif [ "$SBOM" = "skipped" ]; then
+              echo "- La generation du SBOM a ete ignoree."
+            else
+              echo "- La generation du SBOM a echoue."
+            fi
+
+            echo
+            echo "## Artefacts"
+            echo
+            echo "Le SBOM CycloneDX est disponible dans les artefacts du workflow lorsqu'il a ete genere."
+          } >> "$GITHUB_STEP_SUMMARY"
