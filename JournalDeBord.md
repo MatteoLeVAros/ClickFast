@@ -298,5 +298,36 @@ identifiée par le SHA du commit.
 
 Le format utilisé est CycloneDX JSON. Le fichier produit est :
 
-```text
 clickfast-sbom.cdx.json
+
+### Phase 7 : résumé centralisé de la sécurité
+
+Un job `security-summary` a été ajouté à la fin de la pipeline.
+
+Le job dépend :
+
+- de l’audit npm et de Gitleaks ;
+- du build et de la publication Docker ;
+- du scan Trivy ;
+- de la génération du SBOM CycloneDX.
+
+La condition `if: always()` garantit que le résumé s’exécute même lorsqu’un
+contrôle échoue ou est ignoré.
+
+Le résumé est écrit dans `$GITHUB_STEP_SUMMARY`. Il permet de consulter l’état
+global de la sécurité sans ouvrir séparément les logs de chaque scanner.
+
+Résultats du run sur `master` :
+
+- lint : succès, 13 secondes ;
+- audit npm et Gitleaks : succès, 10 secondes ;
+- tests Jest : succès, 11 secondes ;
+- build et publication Docker : succès, 25 secondes ;
+- génération du SBOM : succès, 14 secondes ;
+- scan Trivy : succès, 8 secondes ;
+- résumé de sécurité : succès, 3 secondes ;
+- durée totale : 1 minute 20 secondes ;
+- nombre d’artefacts : 3.
+
+Le résumé final indique que les contrôles de sécurité, la publication de
+l’image et la génération du SBOM ont tous réussi.
