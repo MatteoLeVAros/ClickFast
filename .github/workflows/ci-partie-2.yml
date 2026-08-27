@@ -17,6 +17,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
 
       - name: Installer les dependances
         run: npm ci
@@ -37,12 +39,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
 
       - name: Installer les dependances
         run: npm ci
 
       - name: Executer les tests
         run: npm test
+
   build-and-push:
     name: Build et publication Docker
     runs-on: ubuntu-latest
