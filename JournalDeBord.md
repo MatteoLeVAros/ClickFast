@@ -374,20 +374,14 @@ Résultats :
 - validation humaine demandée : oui ;
 - statut final du workflow de publication : succès.
 
-<br>
-
 ### Phase 10 : pipeline volontairement cassée puis réparée
 
-
 Une branche dédiée nommée `test/phase-10-pipeline-rouge` a été créée.
-
 
 Une assertion Jest a été volontairement modifiée pour attendre une valeur
 incorrecte.
 
-
 Lors de la Pull Request vers `master` :
-
 
 - le lint a réussi ;
 - le contrôle des dépendances et des secrets a réussi ;
@@ -395,26 +389,19 @@ Lors de la Pull Request vers `master` :
 - le job `Verification terminee` a échoué ;
 - le workflow `Publication` ne s’est pas déclenché.
 
-
-La Pull Request a ensuite été fusionnée volontairement malgré l’échec de la
+La Pull Request a été fusionnée volontairement malgré l’échec de la
 vérification.
-
 
 Le workflow `Publication` déclenché sur `master` a échoué au niveau des tests
 Jest. Le job de build et de publication n’a pas été exécuté. Aucune image
 Docker défectueuse n’a donc été publiée.
 
-
 Ce comportement démontre le principe de fail fast : une erreur détectée dans
-les tests empêche les étapes de publication et de sécurité de l’image de
-s’exécuter inutilement.
-
+les tests empêche les étapes suivantes de s’exécuter inutilement.
 
 L’assertion Jest a ensuite été rétablie dans le commit `941f136`.
 
-
 Après la correction, la pipeline complète est repassée au vert :
-
 
 - lint : succès en 8 secondes ;
 - contrôle des dépendances et des secrets : succès en 16 secondes ;
@@ -426,14 +413,11 @@ Après la correction, la pipeline complète est repassée au vert :
 - durée totale : 2 minutes 43 secondes ;
 - nombre d’artefacts : 3.
 
-
 L’ancienne image Docker est restée disponible pendant l’incident. Aucun nouvel
 artefact n’a été publié tant que les tests étaient en échec.
 
-
-La protection recommandée consiste à rendre le check `Verification terminee`
-obligatoire avant toute fusion vers `master`.
-
+La protection recommandée consiste à rendre le check
+`Verification terminee` obligatoire avant toute fusion vers `master`.
 
 - début de l’incident : 27 août 2026 à 18:01:14 ;
 - fin de l’incident : 27 août 2026 à 18:07:14 ;
