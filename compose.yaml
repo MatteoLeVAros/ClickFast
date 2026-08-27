@@ -70,6 +70,27 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  stats-api:
+    build:
+      context: ./stats_api
+      dockerfile: Dockerfile
+    image: clickfast-stats-api
+    environment:
+      DB_HOST: "${DB_HOST:?DB_HOST manquant}"
+      DB_PORT: "${DB_PORT:?DB_PORT manquant}"
+      DB_NAME: "${DB_NAME:?DB_NAME manquant}"
+      DB_USER: "${DB_USER:?DB_USER manquant}"
+      DB_PASSWORD: "${DB_PASSWORD:?DB_PASSWORD manquant}"
+    ports:
+      - "${STATS_PORT:?STATS_PORT manquant}:8000"
+    networks:
+      - clickfast-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+    restart: unless-stopped
+
 networks:
   clickfast-network:
     external: true

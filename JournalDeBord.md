@@ -92,3 +92,12 @@ API_PORT=3000
 ADMINER_PORT=8081
 DB_HOST=postgres
 ```
+
+Les statistiques retournées par `stats-api` ont été comparées avec une requête
+SQL exécutée directement dans PostgreSQL.
+
+Les deux résultats correspondent :
+
+- parties jouées : 11 ;
+- joueurs distincts : 4 ;
+- meilleur score : 52.
