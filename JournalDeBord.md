@@ -341,3 +341,47 @@ Le job `build-and-push` a été associé à cet environnement avec :
 
 ```yaml
 environment: production
+
+### Etape 10
+
+### Phase 10 : pipeline volontairement cassée puis réparée
+
+Une branche dédiée nommée `test/phase-10-pipeline-rouge` a été créée.
+
+Une assertion Jest a été volontairement modifiée pour attendre une valeur
+incorrecte.
+
+Lors de la Pull Request vers `master` :
+
+- le lint a réussi ;
+- le contrôle des dépendances et des secrets a réussi ;
+- les tests Jest ont échoué ;
+- le job `Verification terminee` a échoué ;
+- le workflow `Publication` ne s’est pas déclenché.
+
+La Pull Request a été fusionnée volontairement malgré l’échec de la
+vérification. Le workflow `Publication` déclenché sur `master` a échoué au
+niveau des tests Jest.
+
+Le job de build et de publication n’a pas été exécuté. Aucune image Docker
+défectueuse n’a donc été publiée.
+
+L’assertion Jest a ensuite été rétablie dans le commit `941f136`.
+
+Après la correction, la pipeline complète est repassée au vert :
+
+- lint : succès en 8 secondes ;
+- dépendances et secrets : succès en 16 secondes ;
+- tests Jest : succès en 15 secondes ;
+- build et publication Docker : succès en 31 secondes ;
+- génération du SBOM : succès en 8 secondes ;
+- scan Trivy : succès en 1 minute 17 secondes ;
+- résumé de sécurité : succès en 4 secondes ;
+- durée totale : 2 minutes 43 secondes ;
+- nombre d’artefacts : 3.
+
+L’ancienne image Docker est restée disponible pendant l’incident et aucun
+nouvel artefact n’a été publié tant que les tests étaient en échec.
+
+La mesure de protection recommandée est de rendre le check
+`Verification terminee` obligatoire avant toute fusion vers `master`.
