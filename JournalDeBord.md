@@ -272,20 +272,20 @@ branche `ci-cd-partie-2`. La publication reste limitée à `master`.
 
 ### Phase 5 : scan de l’image avec Trivy
 
-Le job `security-image` dépend du job `build-and-push`. Il analyse l’image
-publiée avec le SHA du commit comme tag.
+Le job `security-image` dépend du job `build-and-push`. Il analyse donc
+l’image publiée avec le SHA du commit comme tag.
 
-Lors du premier scan, Trivy a trouvé :
+Lors du premier scan, Trivy a détecté :
 
 - 2 vulnérabilités HIGH ;
 - 0 vulnérabilité CRITICAL.
 
-Les détections concernaient `libcrypto3` et `libssl3`, affectés par
-`CVE-2026-14456`.
+Les vulnérabilités concernaient les paquets `libcrypto3` et `libssl3`. La
+version installée était `3.5.7-r0` et la version corrigée indiquée était
+`3.5.8-r0`.
 
-La version installée était `3.5.7-r0` et la version corrigée indiquée par
-Trivy était `3.5.8-r0`.
+Le job Trivy s’est terminé en erreur, avec le code de sortie 1. Cette exécution
+rouge a confirmé que la pipeline bloquait correctement une image contenant une
+vulnérabilité de gravité HIGH.
 
-Le job s’est terminé avec le code de sortie 1. Cette exécution rouge confirme
-que la pipeline bloque correctement la publication d’une image présentant une
-vulnérabilité HIGH ou CRITICAL.
+Le Dockerfile a ensuite été corrigé avec :
