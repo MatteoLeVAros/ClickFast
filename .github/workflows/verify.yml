@@ -1,0 +1,105 @@
+name: Verification
+
+on:
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Recuperer le depot
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Installer les dependances
+        run: npm ci
+
+      - name: Executer ESLint
+        run: npm run lint
+
+  test:
+    name: Tests Jest
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Recuperer le depot
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Installer les dependances
+        run: npm ci
+
+      - name: Executer les tests
+        run: npm test
+
+  security-deps:
+    name: Securite des dependances et secrets
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Recuperer tout l'historique Git
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Installer les dependances
+        run: npm ci
+
+      - name: Auditer les dependances
+        run: npm audit --audit-level=high
+
+      - name: Rechercher les secrets avec Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  verify-ok:
+    name: Verification terminee
+    runs-on: ubuntu-latest
+    needs:
+      - test
+      - security-deps
+    if: always()
+
+    steps:
+      - name: Verifier les resultats
+        shell: bash
+        run: |
+          if [ "${{ needs.test.result }}" != "success" ]; then
+            echo "Les tests ou le lint ont echoue."
+            exit 1
+          fi
+
+          if [ "${{ needs.security-deps.result }}" != "success" ]; then
+            echo "Le controle de securite a echoue."
+            exit 1
+          fi
+
+          echo "Toutes les verifications ont reussi."
