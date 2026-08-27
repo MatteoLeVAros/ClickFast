@@ -115,4 +115,3 @@ button.addEventListener("click", () => {
 });
 
 loadRanking();
-const variableJamaisUtilisee = true;
