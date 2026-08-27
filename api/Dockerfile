@@ -4,11 +4,7 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 
-RUN npm ci
-
-COPY server.js ./
-
-RUN npm prune --omit=dev
+RUN npm ci --omit=dev
 
 
 FROM node:22.23.2-alpine3.23 AS production
@@ -20,7 +16,8 @@ WORKDIR /app
 COPY --from=dependencies --chown=node:node /app/package.json ./
 COPY --from=dependencies --chown=node:node /app/package-lock.json ./
 COPY --from=dependencies --chown=node:node /app/node_modules ./node_modules
-COPY --from=dependencies --chown=node:node /app/server.js ./
+
+COPY --chown=node:node server.js ./
 
 USER node
 

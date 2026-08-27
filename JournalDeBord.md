@@ -133,3 +133,56 @@ Les tests ont donné les résultats suivants :
 
 Les commandes `docker history` et `docker image inspect` n’ont fait apparaître
 aucun secret, mot de passe, token ou contenu du fichier `.env`.
+
+## Étape 9 : mesures et optimisations
+
+### Mesures avant optimisation
+
+| Image | Taille | Couches, poids maximal | Build froid | Build chaud | Première réponse HTTP |
+|---|---:|---:|---:|---:|---:|
+| clickfast-game | 51,47 MB | 11 couches, 41,2 MB max | 2,21 s | 2,10 s | 7,16 s |
+| clickfast-api | 159,72 MB | 8 couches, 151 MB max | 6,18 s | 1,88 s | 7,16 s |
+| clickfast-stats-api | 142,61 MB | 8 couches, 78,6 MB max | 6,40 s | 0,85 s | 7,59 s |
+
+### Mesures après optimisation
+
+| Image | Taille | Couches, poids maximal | Build froid | Build chaud | Première réponse HTTP |
+|---|---:|---:|---:|---:|---:|
+| clickfast-game | 51,47 MB | 11 couches, 41,2 MB max | 2,37 s | 1,57 s | 6,94 s |
+| clickfast-api | 159,72 MB | 8 couches, 151 MB max | 4,03 s | 1,50 s | 6,72 s |
+| clickfast-stats-api | 134,92 MB | 7 couches, 78,6 MB max | 6,72 s | 0,70 s | 7,79 s |
+
+### Bilan des optimisations
+
+L’image du jeu n’a pas été modifiée. Elle utilise déjà une image Nginx
+non privilégiée basée sur Alpine et ne contient que les trois fichiers
+statiques nécessaires.
+
+Pour l’API Node.js, `npm ci` suivi de `npm prune --omit=dev` a été remplacé
+par `npm ci --omit=dev`. Les dépendances de développement ne sont donc plus
+installées pendant le build.
+
+La taille de l’image Node reste identique, car l’ancien stage final ne
+contenait déjà que les dépendances de production. En revanche, le build froid
+est passé de 6,18 à 4,03 secondes.
+
+Pour `stats-api`, le cache pip et la création des fichiers bytecode ont été
+désactivés. `COPY --chown` attribue directement le fichier Python à
+l’utilisateur non privilégié.
+
+La taille de `stats-api` est passée de 142,61 à 134,92 MB, soit une réduction
+de 7,69 MB. Le nombre de couches non vides est passé de 8 à 7.
+
+Le build froid de `stats-api` est passé de 6,40 à 6,72 secondes. Cette légère
+augmentation est une petite régression de temps, mais elle est compensée par
+une réduction de 5,4 % de la taille et par un build chaud plus rapide.
+
+Les temps de première réponse HTTP restent proches des valeurs initiales.
+Aucune régression importante du temps de démarrage n’a été observée.
+
+### Coût estimé de la pipeline
+
+Avant optimisation, le build à froid des trois images prenait :
+
+```text
+2,21 + 6,18 + 6,40 = 14,79 secondes
