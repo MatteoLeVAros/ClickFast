@@ -213,11 +213,11 @@ Une requête sans nom d’utilisateur a été refusée avec le statut HTTP 400 :
 
  ### PARTIE 2
 
- ### Phase 3 : mesure du cache npm
+### Phase 3 : mesure du cache npm
 
 | Mesure | Avant cache | Après cache | Écart |
 |---|---:|---:|---:|
-| Durée totale du workflow | 1 min 2 s | À relever | À calculer |
+| Durée totale du workflow | 1 min 2 s | 1 min 4 s | +2 s |
 | Durée du job de tests | 16 s | 13 s | -3 s |
 | Taille compressée de l’image publiée | 21,97 MB | 21,97 MB | 0 MB |
 
@@ -227,3 +227,21 @@ Détail du run avant cache :
 - tests Jest : 16 secondes ;
 - build et publication Docker : 20 secondes ;
 - taille compressée de l’image Docker : 21,97 MB.
+
+Détail du run après cache :
+
+- lint : 14 secondes ;
+- tests Jest : 13 secondes ;
+- build et publication Docker : 30 secondes ;
+- taille compressée de l’image Docker : 21,97 MB.
+
+Le cache npm a été correctement restauré, comme l’indiquent les messages
+`Cache hit` et `Cache restored successfully`.
+
+Le job de lint a gagné 3 secondes et le job de tests a également gagné
+3 secondes. La durée totale a cependant augmenté de 2 secondes, principalement
+parce que le job de build et de publication Docker est passé de 20 à
+30 secondes.
+
+La taille de l’image reste identique, car le cache npm accélère l’installation
+des dépendances dans la pipeline sans modifier le contenu de l’image Docker.
