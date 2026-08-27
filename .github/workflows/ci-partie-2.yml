@@ -79,6 +79,7 @@ jobs:
   build-and-push:
     name: Build et publication Docker
     runs-on: ubuntu-latest
+    environment: production
     needs: 
       - test
       - security-deps
