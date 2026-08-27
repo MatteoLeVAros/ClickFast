@@ -48,10 +48,40 @@ jobs:
       - name: Executer les tests
         run: npm test
 
+  security-deps:
+    name: Securite des dependances et secrets
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Recuperer tout l'historique Git
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Installer les dependances
+        run: npm ci
+
+      - name: Auditer les dependances
+        run: npm audit --audit-level=high
+
+      - name: Rechercher les secrets avec Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build-and-push:
     name: Build et publication Docker
     runs-on: ubuntu-latest
-    needs: test
+    needs: 
+        - test
+        - security-deps
 
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
