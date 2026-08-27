@@ -341,3 +341,34 @@ Le job `build-and-push` a été associé à cet environnement avec :
 
 ```yaml
 environment: production
+
+### Phase 9 : séparation des workflows
+
+Le workflow unique a été remplacé par deux fichiers distincts :
+
+- `verify.yml`, déclenché uniquement lors d’une Pull Request vers `master` ;
+- `release.yml`, déclenché uniquement lors d’un push vers `master`.
+
+Lors de la Pull Request, seul le workflow `Verification` s’est exécuté. Il a
+lancé le lint, les tests Jest et les contrôles de sécurité. Aucune image Docker
+n’a été publiée.
+
+Après la fusion, seul le workflow `Publication` s’est exécuté. La publication
+s’est arrêtée avant le job `build-and-push` afin de demander une validation
+humaine pour l’environnement `production`.
+
+Après approbation, la pipeline a repris et a exécuté :
+
+- le build et la publication de l’image Docker ;
+- le scan Trivy ;
+- la génération du SBOM CycloneDX ;
+- le résumé de sécurité.
+
+Résultats :
+
+- vérification déclenchée sur la Pull Request : oui ;
+- publication déclenchée sur la Pull Request : non ;
+- publication déclenchée après fusion sur `master` : oui ;
+- vérification déclenchée après fusion sur `master` : non ;
+- validation humaine demandée : oui ;
+- statut final du workflow de publication : succès.
