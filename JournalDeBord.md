@@ -331,3 +331,13 @@ Résultats du run sur `master` :
 
 Le résumé final indique que les contrôles de sécurité, la publication de
 l’image et la génération du SBOM ont tous réussi.
+
+### Phase 8 : validation humaine avant publication
+
+Un environnement GitHub nommé `production` a été créé avec une validation
+obligatoire avant publication.
+
+Le job `build-and-push` a été associé à cet environnement avec :
+
+```yaml
+environment: production
