@@ -288,4 +288,15 @@ Le job Trivy s’est terminé en erreur, avec le code de sortie 1. Cette exécut
 rouge a confirmé que la pipeline bloquait correctement une image contenant une
 vulnérabilité de gravité HIGH.
 
-Le Dockerfile a ensuite été corrigé avec :
+
+### Phase 6 : génération du SBOM
+
+Un job `generate-sbom` a été ajouté après le job `build-and-push`.
+
+Le SBOM est généré avec Syft à partir de l’image réellement publiée et
+identifiée par le SHA du commit.
+
+Le format utilisé est CycloneDX JSON. Le fichier produit est :
+
+```text
+clickfast-sbom.cdx.json
