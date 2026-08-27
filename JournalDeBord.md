@@ -186,3 +186,27 @@ Avant optimisation, le build à froid des trois images prenait :
 
 ```text
 2,21 + 6,18 + 6,40 = 14,79 secondes
+
+### Étape 10 : test de recette complet
+
+Le test a été réalisé dans un dossier neuf contenant uniquement :
+
+- `docker-compose.prod.yml` ;
+- un fichier `.env` reconstruit depuis `.env.example`.
+
+Les images applicatives versionnées `1.1.0` ont été téléchargées depuis Docker
+Hub. Aucun code source ni Dockerfile n’était présent dans le dossier de
+recette.
+
+Une partie complète a été jouée. Le score a été enregistré et le classement
+a été actualisé.
+
+### Validation des données
+
+Une requête sans nom d’utilisateur a été refusée avec le statut HTTP 400 :
+
+```json
+{
+  "error": "invalid_username",
+  "message": "Le nom doit contenir entre 1 et 50 caractères."
+}
