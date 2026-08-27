@@ -1,0 +1,90 @@
+services:
+  game:
+    image: "${DOCKERHUB_USER:?DOCKERHUB_USER manquant}/clickfast-game:${APP_VERSION:?APP_VERSION manquant}"
+    ports:
+      - "${GAME_PORT:?GAME_PORT manquant}:80"
+    networks:
+      - clickfast-network
+    depends_on:
+      api:
+        condition: service_started
+    restart: unless-stopped
+
+  api:
+    image: "${DOCKERHUB_USER:?DOCKERHUB_USER manquant}/clickfast-api:${APP_VERSION:?APP_VERSION manquant}"
+    environment:
+      PORT: "${PORT:?PORT manquant}"
+      DB_HOST: "${DB_HOST:?DB_HOST manquant}"
+      DB_PORT: "${DB_PORT:?DB_PORT manquant}"
+      DB_USER: "${DB_USER:?DB_USER manquant}"
+      DB_PASSWORD: "${DB_PASSWORD:?DB_PASSWORD manquant}"
+      DB_NAME: "${DB_NAME:?DB_NAME manquant}"
+    ports:
+      - "${API_PORT:?API_PORT manquant}:${PORT:?PORT manquant}"
+    networks:
+      - clickfast-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:17.11-alpine3.23
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER:?POSTGRES_USER manquant}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD manquant}"
+      POSTGRES_DB: "${POSTGRES_DB:?POSTGRES_DB manquant}"
+    volumes:
+      - clickfast-postgres-data:/var/lib/postgresql/data
+    networks:
+      - clickfast-network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"
+        ]
+      interval: 2s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+
+  adminer:
+    image: adminer:6.0.1-standalone
+    environment:
+      ADMINER_DEFAULT_SERVER: "${DB_HOST:?DB_HOST manquant}"
+    ports:
+      - "${ADMINER_PORT:?ADMINER_PORT manquant}:8080"
+    networks:
+      - clickfast-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  stats-api:
+    image: "${DOCKERHUB_USER:?DOCKERHUB_USER manquant}/clickfast-stats-api:${APP_VERSION:?APP_VERSION manquant}"
+    environment:
+      DB_HOST: "${DB_HOST:?DB_HOST manquant}"
+      DB_PORT: "${DB_PORT:?DB_PORT manquant}"
+      DB_NAME: "${DB_NAME:?DB_NAME manquant}"
+      DB_USER: "${DB_USER:?DB_USER manquant}"
+      DB_PASSWORD: "${DB_PASSWORD:?DB_PASSWORD manquant}"
+    ports:
+      - "${STATS_PORT:?STATS_PORT manquant}:8000"
+    networks:
+      - clickfast-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+    restart: unless-stopped
+
+networks:
+  clickfast-network:
+    driver: bridge
+
+volumes:
+  clickfast-postgres-data:

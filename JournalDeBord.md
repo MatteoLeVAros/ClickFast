@@ -101,3 +101,35 @@ Les deux résultats correspondent :
 - parties jouées : 11 ;
 - joueurs distincts : 4 ;
 - meilleur score : 52.
+
+## Étape 8 : publication dans un registry
+
+Les trois images personnalisées ont été publiées sur Docker Hub avec le tag
+explicite `1.0.0` :
+
+- `lecohier/clickfast-game:1.0.0`
+- `lecohier/clickfast-api:1.0.0`
+- `lecohier/clickfast-stats-api:1.0.0`
+
+Un fichier `docker-compose.prod.yml` a été créé. Il ne contient aucune section
+`build:` et utilise uniquement les images publiées.
+
+Le déploiement a été testé dans un dossier indépendant contenant uniquement :
+
+- `.env`
+- `docker-compose.prod.yml`
+
+Les cinq services ont démarré correctement. PostgreSQL est passé à l’état
+`healthy` et n’a publié aucun port vers l’hôte.
+
+Les tests ont donné les résultats suivants :
+
+- l’API Node répond avec une base connectée ;
+- l’API Python répond `{"status":"ok"}` ;
+- sur la base vide, les statistiques étaient de 0 partie, 0 joueur et 0
+  comme meilleur score ;
+- après une partie, les statistiques étaient de 1 partie, 1 joueur et un
+  meilleur score de 40.
+
+Les commandes `docker history` et `docker image inspect` n’ont fait apparaître
+aucun secret, mot de passe, token ou contenu du fichier `.env`.
