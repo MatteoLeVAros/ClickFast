@@ -245,3 +245,27 @@ parce que le job de build et de publication Docker est passé de 20 à
 
 La taille de l’image reste identique, car le cache npm accélère l’installation
 des dépendances dans la pipeline sans modifier le contenu de l’image Docker.
+
+### Phase 4 : audit des dépendances et recherche de secrets
+
+Un job `security-deps` a été ajouté à la pipeline. Il exécute :
+
+- `npm audit --audit-level=high` pour détecter les vulnérabilités HIGH et
+  CRITICAL ;
+- Gitleaks pour rechercher des secrets dans l’ensemble de l’historique Git.
+
+Le job de sécurité s’exécute en parallèle du lint. Le job de publication attend
+désormais la réussite des tests et du contrôle de sécurité.
+
+Résultats observés :
+
+- durée du lint : 8 secondes ;
+- durée du contrôle de sécurité : 18 secondes ;
+- durée des tests Jest : 11 secondes ;
+- durée totale du workflow : 25 secondes ;
+- vulnérabilité bloquante détectée : non ;
+- secret détecté par Gitleaks : non ;
+- statut final : succès.
+
+Le job de publication Docker a été ignoré, car le workflow s’est exécuté sur la
+branche `ci-cd-partie-2`. La publication reste limitée à `master`.
